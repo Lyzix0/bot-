@@ -1,0 +1,79 @@
+INFO:aiogram.event:Update id=615847581 is handled. Duration 219 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847580 is handled. Duration 21391 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847582 is not handled. Duration 0 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847583 is handled. Duration 702 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847584 is handled. Duration 594 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847585 is not handled. Duration 0 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847586 is handled. Duration 77 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847587 is handled. Duration 93 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847588 is handled. Duration 265 ms by bot id=6126064693
+INFO:aiogram.dispatcher:Polling stopped
+INFO:aiogram.dispatcher:Start polling
+INFO:aiogram.dispatcher:Run polling for bot @saveyoursafe_bot id=6126064693 - 'saveyoursafe'
+INFO:aiogram.event:Update id=615847590 is handled. Duration 266 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847589 is handled. Duration 21295 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847591 is handled. Duration 109 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847592 is not handled. Duration 234 ms by bot id=6126064693
+ERROR:aiogram.event:Cause exception while process update id=615847592 by bot id=6126064693
+TypeError: strptime() argument 1 must be str, not None
+Traceback (most recent call last):
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 27, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\fsm\middleware.py", line 41, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 128, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 123, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 148, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\scripts\bot.py", line 178, in enter_message_to_send
+    if db.get_status(int(subscriber[1])):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\maksi\PycharmProjects\base_db_bot\scripts\database.py", line 32, in get_status
+    end_time = datetime.strptime(end_time_str, "%Y-%m-%d %H:%M:%S.%f")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: strptime() argument 1 must be str, not None
+INFO:aiogram.dispatcher:Polling stopped
+INFO:aiogram.dispatcher:Start polling
+INFO:aiogram.dispatcher:Run polling for bot @saveyoursafe_bot id=6126064693 - 'saveyoursafe'
+INFO:aiogram.event:Update id=615847593 is not handled. Duration 16 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847594 is handled. Duration 21344 ms by bot id=6126064693
+INFO:aiogram.dispatcher:Polling stopped
+INFO:aiogram.dispatcher:Polling stopped for bot @saveyoursafe_bot id=6126064693 - 'saveyoursafe'
+INFO:aiogram.dispatcher:Start polling
+INFO:aiogram.dispatcher:Run polling for bot @saveyoursafe_bot id=6126064693 - 'saveyoursafe'
+INFO:aiogram.event:Update id=615847595 is handled. Duration 0 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847596 is handled. Duration 217 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847597 is handled. Duration 109 ms by bot id=6126064693
+INFO:aiogram.event:Update id=615847598 is handled. Duration 157 ms by bot id=6126064693
+INFO:aiogram.dispatcher:Polling stopped
