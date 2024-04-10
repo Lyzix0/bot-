@@ -6,19 +6,20 @@ from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 import scripts.config as cfg
 import scripts.database
 import scripts.keyboards as kbd
 
-TOKEN = cfg.config['bot_api']
+TOKEN = cfg.config["bot_api"]
 dp = Dispatcher()
 db = scripts.database.Database("users.db")
 bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
 
 
 class Form(StatesGroup):
+    enter_admin_username = State()
     enter_message_all = State()
     enter_message = State()
     admin = State()
@@ -27,7 +28,7 @@ class Form(StatesGroup):
     select_time = State()
 
 
-@dp.message(F.text == "Отменить")
+@dp.message(F.text == kbd.cancel_button.text)
 async def cancel_handler(message: Message, state: FSMContext) -> None:
     current_state = await state.get_state()
     if current_state is None:
@@ -35,7 +36,7 @@ async def cancel_handler(message: Message, state: FSMContext) -> None:
 
     await state.clear()
     await message.answer(
-        "Отменено",
+        "Отменено✅",
         reply_markup=types.ReplyKeyboardRemove(),
     )
 
@@ -47,35 +48,32 @@ async def command_start_handler(message: Message) -> None:
             user_id=message.from_user.id,
             username=message.from_user.username,
         )
-    await bot.send_message(
-        message.from_user.id,
-        cfg.config['start_text']
-    )
+    await bot.send_message(message.from_user.id, cfg.config["start_text"])
 
 
 @dp.message(Command("admin"))
 async def command_admin(message: Message, state: FSMContext):
-    if message.from_user.id in cfg.config['admins']:
+    if message.from_user.id in cfg.config["admins"]:
         await bot.send_message(
             message.from_user.id,
             "Вы зашли в админ панель!😊",
-            reply_markup=kbd.admin_menu_button,
+            reply_markup=kbd.admin_menu_buttons,
         )
         await state.set_state(Form.admin)
     else:
         await bot.send_message(
             message.from_user.id,
-            "Вы не являетесь админом!",
+            "Вы не являетесь админом!❌",
         )
 
 
-@dp.message(F.text == "Проверить подписку пользователя", Form.admin)
+@dp.message(F.text == kbd.admin_menu_button.text, Form.admin)
 async def renew_subscription(message: Message, state: FSMContext):
     if message.from_user.id in cfg.config["admins"]:
         await bot.send_message(
             message.from_user.id,
-            "Введите имя пользователя",
-            reply_markup=kbd.keyboard_cancel,
+            "Введите имя пользователя:",
+            reply_markup=kbd.inline_keyboard_back,
         )
         await state.set_state(Form.enter_name)
 
@@ -113,8 +111,10 @@ async def enter_username(message: Message, state: FSMContext):
     else:
         await bot.send_message(
             message.from_user.id,
-            text="Мы не нашли такого пользователя. Попробуйте снова.\nЕсли у пользователя нет никнейма, введите его "
-                 "id.\nПолучить id можно у @username_to_id_bot",
+            text="К сожалению, мы не смогли найти указанного пользователя. Пожалуйста, попробуйте снова.\n"
+                 "Если у пользователя нет никнейма, введите его ID.\n"
+                 "Вы можете получить ID пользователя с помощью бота @username_to_id_bot",
+            reply_markup=kbd.inline_keyboard_back,
         )
 
 
@@ -133,10 +133,10 @@ async def select_action(message: Message, state: FSMContext):
         db.remove_time(data["user_id"])
         await bot.send_message(
             message.from_user.id,
-            text="Подписка обнулена",
-            reply_markup=types.ReplyKeyboardRemove(),
+            text="Подписка обнулена✅",
+            reply_markup=kbd.admin_menu_buttons,
         )
-        await state.clear()
+        await state.set_state(Form.admin)
 
 
 @dp.message(Form.select_time)
@@ -154,64 +154,133 @@ async def select_time(message: Message, state: FSMContext):
     elif message.text == "Выйти":
         await bot.send_message(
             message.from_user.id,
-            "Вы вышли из админ панели",
+            "Вы вышли из админ панели✅",
             reply_markup=types.ReplyKeyboardRemove(),
         )
         await state.clear()
 
 
-@dp.message(F.text == "Отправить сообщение подписчикам", Form.admin)
+@dp.message(F.text == kbd.admin_send_subs.text, Form.admin)
 async def send_message_to_subscribers(message: Message, state: FSMContext):
     await bot.send_message(
         message.from_user.id,
         "Введите текст сообщения, который хотите отправить подписчикам:",
-        reply_markup=kbd.keyboard_cancel,
+        reply_markup=kbd.inline_keyboard_back,
     )
     await state.set_state(Form.enter_message)
 
 
 @dp.message(Form.enter_message)
-async def enter_message_to_send(message: Message, state: FSMContext):
-    subscribers = db.get_subscriptions()
-
-    for subscriber in subscribers:
-        if db.get_status(int(subscriber[1])):
-            await bot.send_message(
-                int(subscriber[1]),
-                message.text
-            )
-
+async def apply_to_send_subs(message: Message, state: FSMContext):
     await bot.send_message(
         message.from_user.id,
-        "Сообщение успешно отправлено всем подписчикам.",
-        reply_markup=types.ReplyKeyboardRemove(),
+        f"Отправлять сообщение: {message.text}?",
+        reply_markup=kbd.inline_apply_subs,
     )
-    await state.clear()
+    await state.update_data(text=message.text)
+    await state.set_state(Form.admin)
 
 
-@dp.message(F.text == "Отправить сообщение всем пользователям", Form.admin)
+@dp.message(Form.enter_message_all)
+async def apply_to_send_all(message: Message, state: FSMContext):
+    await bot.send_message(
+        message.from_user.id,
+        f"Отправлять сообщение: {message.text}?",
+        reply_markup=kbd.inline_apply_all,
+    )
+    await state.update_data(text=message.text)
+    await state.set_state(Form.admin)
+
+
+@dp.message(F.text == kbd.admin_send_all.text, Form.admin)
 async def send_message_to_all_users(message: Message, state: FSMContext):
     await bot.send_message(
         message.from_user.id,
         "Введите текст сообщения, который хотите отправить всем пользователям:",
-        reply_markup=kbd.keyboard_cancel,
+        reply_markup=kbd.inline_keyboard_back,
     )
     await state.set_state(Form.enter_message_all)
 
 
-@dp.message(Form.enter_message_all)
-async def enter_message_to_send_all(message: Message, state: FSMContext):
-    users = db.get_subscriptions()
-
-    for user in users:
-        await bot.send_message(
-            int(user[1]),
-            message.text
-        )
-
+@dp.message(Form.enter_message)
+async def apply_to_send_all(message: Message, state: FSMContext):
     await bot.send_message(
         message.from_user.id,
-        "Сообщение успешно отправлено всем пользователям.",
-        reply_markup=types.ReplyKeyboardRemove(),
+        f"Отправлять сообщение: {message.text}?",
+        reply_markup=kbd.inline_apply_all,
     )
-    await state.clear()
+    await state.update_data(text=message.text)
+    await state.set_state(Form.admin)
+
+
+@dp.message(F.text == kbd.admin_add.text, Form.admin)
+async def add_admin(message: Message, state: FSMContext):
+    await bot.send_message(
+        message.from_user.id,
+        "Введите никнейм пользователя, которого вы хотите добавить в администраторы:",
+        reply_markup=kbd.inline_keyboard_back,
+    )
+    await state.set_state(Form.enter_admin_username)
+
+
+@dp.message(Form.enter_admin_username)
+async def enter_admin_username(message: types.Message, state: FSMContext):
+    admin_username = message.text
+
+    if db.is_admin(admin_username):
+        db.add_admin(admin_username)
+
+        await bot.send_message(
+            message.from_user.id,
+            f"Пользователь с никнеймом {admin_username} успешно добавлен в список администраторов✅",
+            reply_markup=kbd.admin_menu_buttons,
+        )
+    else:
+        await bot.send_message(
+            message.from_user.id,
+            f"Пользователь с никнеймом {admin_username} не найден. Попробуйте еще раз.",
+            reply_markup=kbd.inline_keyboard_back,
+        )
+
+    await state.set_state(Form.admin)
+
+
+@dp.callback_query(lambda query: query.data.startswith("send"))
+async def send_subs(query: types.CallbackQuery, state: FSMContext):
+    users = db.get_subscriptions()
+
+    texts = await state.get_data()
+
+    if query.data == "send_subs":
+        for user in users:
+            if db.get_status(int(user[1])):
+                await bot.send_message(
+                    int(user[1]),
+                    texts["text"],
+                )
+
+        await bot.send_message(
+            query.from_user.id,
+            "Сообщение успешно отправлено всем подписчикам✅",
+            reply_markup=kbd.admin_menu_buttons,
+        )
+    elif query.data == "send_all":
+        for user in users:
+            await bot.send_message(
+                int(user[1]),
+                texts["text"],
+            )
+
+        await bot.send_message(
+            query.from_user.id,
+            "Сообщение успешно отправлено всем пользователям✅",
+            reply_markup=kbd.admin_menu_buttons,
+        )
+
+    await query.answer()
+
+
+@dp.callback_query(lambda query: query.data == "back")
+async def button_click(query: types.CallbackQuery, state: FSMContext):
+    await state.set_state(Form.admin)
+    await query.message.edit_text("Вы вернулись назад")

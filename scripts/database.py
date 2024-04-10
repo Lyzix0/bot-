@@ -24,7 +24,7 @@ class Database:
         with self.connection:
             subscription = self.cursor.execute(
                 "SELECT last_send_message FROM subscriptions WHERE user_id = ?",
-                (user_id,)
+                (user_id,),
             ).fetchone()
 
             if subscription is not None:
@@ -116,3 +116,14 @@ class Database:
 
     def close(self):
         self.connection.close()
+
+    def is_admin(self, username):
+        info = self.cursor.execute(
+            "SELECT is_admin FROM subscriptions WHERE username=?", (username,)
+        ).fetchone()
+        return info
+
+    def add_admin(self, username):
+        self.cursor.execute(
+            "UPDATE subscriptions SET is_admin = 1 WHERE username=?", (username,))
+        return True
